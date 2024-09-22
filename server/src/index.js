@@ -1,12 +1,13 @@
 const express = require('express');
 const fs = require('fs');
-const { PORT, DB_URI, DB_NAME } = require('./constant');
+const { PORT, DB_URI, DB_NAME, CORS_ORIGIN } = require('./constant');
 
 const app = express();
 const cors = require('cors');
 const mongoose = require('mongoose');
 
 let {count} = require('./constant');
+const cookieParser = require('cookie-parser');
 
 
 
@@ -18,7 +19,8 @@ let {count} = require('./constant');
         console.log(`Error connecting to the database: ${error}`);
     }
     );
-        console.log('Database connected');
+        console.log('Database connected !! connected to host ::',connectionInstance.connection.host);
+
         app.listen(PORT,()=>{
             console.log(`Server is running on port ${PORT}`);
         })
@@ -32,9 +34,14 @@ let {count} = require('./constant');
 })();
 
 
-app.use(cors());
-app.use(express.json());
+app.use(cors({
+    origin:CORS_ORIGIN,
+    credentials:true
+}));
+app.use(express.json({limit:"16kb"}));
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static("public"))
+app.use(cookieParser())
 
 const userRequest= {};
 app.use((req,res,next)=>{
